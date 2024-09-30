@@ -8,6 +8,8 @@ The project structure didn't change much. running `npm i && npm run dev` on the 
 
 For this demo I'm using the LTS node version `v20.17.0` and npm version `10.8.2`
 
+---
+
 Welcome! In this repo, we're going to try to build a Pokedex!
 
 It's not required to use this starter code, but it is required to pass the tests. So if a different folder structure is going to be used, please make sure the migrate the tests.
