@@ -132,7 +132,6 @@ function App() {
   );
   const [pageCount, setPageCount] = useState(20);
   const navigate = useNavigate();
-  const [currentFilter, setCurrentFilter] = useState<string>("");
 
   const resetFilters = (filter: string) => {
     switch (filter) {

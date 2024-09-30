@@ -1,6 +1,7 @@
 import "./PokemonDetails.css";
 
 import {
+  Box,
   Chip,
   Grid2 as Grid,
   IconButton,
@@ -56,10 +57,8 @@ const PokemonDetails = () => {
   const [evolutions, setEvolutions] = useState<PokemonDef.Pokemon[]>([]);
   const { id } = useParams();
   const navigate = useNavigate();
-  const { capturedPokemons, encounteredPokemons, setEncounteredPokemon } =
-    usePokemons();
+  const { capturedPokemons, setEncounteredPokemon } = usePokemons();
   const pokemonIsCapture = capturedPokemons.includes(id || "");
-  const pokemonIsEncountered = encounteredPokemons.includes(id || "");
 
   useEffect(() => {
     if (id) {
@@ -136,7 +135,7 @@ const PokemonDetails = () => {
           </Grid>
         </Grid>
 
-        <Grid container flexDirection={"column"}>
+        <Grid container flexDirection={"column"} alignItems={"center"}>
           {/* NAME */}
           {pokemonIsCapture ? (
             <Typography variant="h4">{`You have captured ${capitalize(
@@ -152,57 +151,78 @@ const PokemonDetails = () => {
           {!pokemonIsCapture && (
             <Grid container alignItems={"center"} spacing={1}>
               <Typography variant="h6">Capture?</Typography>
-              <IconButton onClick={handleCapturePokemon}>
-                <PokeballIcon />
-              </IconButton>
+              <Tooltip title="Capture Pokemon">
+                <IconButton onClick={handleCapturePokemon}>
+                  <PokeballIcon />
+                </IconButton>
+              </Tooltip>
             </Grid>
           )}
 
-          {/* TYPES */}
-          <Grid container spacing={3} my={2}>
-            {pokemon?.types.map((type) => (
-              <Chip label={type} />
-            ))}
-            <Chip label={`Weight: ${pokemon.weight}hg`} />
-            <Chip label={`Height: ${pokemon.height}dm`} />
-          </Grid>
-        </Grid>
-
-        <Grid container>
-          <Grid className="pokemonImageContainer">
+          {/* POKEMON IMAGE AND EVOLUTIONS */}
+          <Box
+            display="flex"
+            flexDirection="column"
+            alignItems="center"
+            justifyContent="center"
+            border={1}
+            borderRadius={8}
+            padding={2}
+            marginTop={2}
+            width="100%"
+            maxWidth="400px"
+          >
             <img
-              className="pokemonImage"
               src={pokemon.sprites}
               alt={pokemon.name}
+              style={{ width: "100%", height: "auto", borderRadius: "8px" }}
             />
-          </Grid>
-
-          <Grid>
-            <Typography variant="h3">Evolutions</Typography>
-            <Grid size={12}>
-              <Grid className="pokemonEvolutionContainer">
-                {evolutions.length > 0 ? (
-                  evolutions.map((evolution) => (
-                    <Grid
-                      className="pokemonEvolution"
-                      onClick={() => navigate(`/pokemons/${evolution.id}`)}
-                    >
-                      <Typography variant="body1">
-                        {capitalize(evolution.name)}
-                      </Typography>
-                      <img
-                        className="pokemonEvolutionImage"
-                        src={evolution.sprites}
-                        alt={evolution.name}
-                      />
-                    </Grid>
-                  ))
-                ) : (
-                  <Typography variant="h4">No Evolutions</Typography>
-                )}
-              </Grid>
+            <Grid container spacing={3} my={2}>
+              {pokemon?.types.map((type) => (
+                <Chip label={type} />
+              ))}
             </Grid>
-          </Grid>
+
+            <Grid container spacing={3} my={2}>
+              <Chip label={`Weight: ${pokemon.weight}hg`} />
+              <Chip label={`Height: ${pokemon.height}dm`} />
+            </Grid>
+            <Typography variant="h6" marginTop={2}>
+              Evolutions
+            </Typography>
+
+            {/* TYPES */}
+
+            <Box
+              display="flex"
+              flexDirection="row"
+              justifyContent="center"
+              marginTop={1}
+            >
+              {evolutions.map((evolution) => (
+                <Box
+                  key={evolution.name}
+                  display="flex"
+                  flexDirection="column"
+                  alignItems="center"
+                  marginX={1}
+                >
+                  <img
+                    src={evolution.sprites}
+                    alt={evolution.name}
+                    style={{
+                      width: "80px",
+                      height: "80px",
+                      borderRadius: "8px",
+                    }}
+                  />
+                  <Typography variant="body1">
+                    {capitalize(evolution.name)}
+                  </Typography>
+                </Box>
+              ))}
+            </Box>
+          </Box>
         </Grid>
       </Grid>
     </Grid>

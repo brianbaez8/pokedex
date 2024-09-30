@@ -26,6 +26,8 @@ const PokemonCard = ({ pokemon, hideActions, height }: PokemonCardProps) => {
         sx={{ height: height || 120 }}
         image={pokemon.sprites}
         title={pokemon.name}
+        component={"img"}
+        style={{ objectFit: "contain" }}
       />
       <CardContent>
         <Typography gutterBottom variant="h5" component="div">
