@@ -1,11 +1,12 @@
 import express from "express";
+import pokemons from "./routes/pokemons";
 
 const PORT = process.env.PORT || 8080;
 const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
+pokemons(app);
 
 app.get('/_health', (_req, res) => {
   res.send('Server is running!')
