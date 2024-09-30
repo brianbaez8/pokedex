@@ -188,8 +188,8 @@ function App() {
       ...query,
       type: filterType,
       location: filterLocation,
-      weight: Number(filterWeight),
-      height: Number(filterHeight),
+      weight: filterWeight ? Number(filterWeight) : undefined,
+      height: filterHeight ? Number(filterHeight) : undefined,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filterType, filterLocation, filterHeight, filterWeight]);
