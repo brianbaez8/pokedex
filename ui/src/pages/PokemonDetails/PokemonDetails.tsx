@@ -8,17 +8,15 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
+import { Header, PokemonLoading } from "../../components";
 import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
 
 import { ReactComponent as PokeballIcon } from "../../assets/pokeball.svg";
 import { Pokemon } from "../../common/classes/Pokemon/Pokemon";
 import { PokemonDef } from "../../common/types";
-import { ReactComponent as PokemonIcon } from "../../assets/pokemon.svg";
-import { PokemonLoading } from "../../components";
-import { ReactComponent as TrainerIcon } from "../../assets/trainer.svg";
 import { capitalize } from "../../utils";
 import { getPokemonById } from "../../api";
+import { useParams } from "react-router-dom";
 import usePokemons from "../../hooks/usePokemons";
 
 const fetchPokemon = async (
@@ -56,7 +54,6 @@ const PokemonDetails = () => {
   const [pokemon, setPokemon] = useState<PokemonDef.Pokemon>();
   const [evolutions, setEvolutions] = useState<PokemonDef.Pokemon[]>([]);
   const { id } = useParams();
-  const navigate = useNavigate();
   const { capturedPokemons, setEncounteredPokemon } = usePokemons();
   const pokemonIsCapture = capturedPokemons.includes(id || "");
 
@@ -103,37 +100,7 @@ const PokemonDetails = () => {
   ) : pokemon ? (
     <Grid container paddingX={5} py={2}>
       <Grid size={12}>
-        <Grid container size={12}>
-          <Grid
-            alignItems={"center"}
-            justifyContent={"flex-start"}
-            container
-            my={2}
-            paddingX={5}
-            columnGap={2}
-            flex={1}
-          >
-            <IconButton onClick={() => navigate("/")}>
-              <PokemonIcon />
-            </IconButton>
-          </Grid>
-
-          <Grid
-            alignItems={"center"}
-            justifyContent={"flex-end"}
-            container
-            my={2}
-            paddingX={5}
-            columnGap={2}
-            flex={1}
-          >
-            <Tooltip title="Trainer">
-              <IconButton onClick={() => navigate("/trainer")}>
-                <TrainerIcon fontSize={24} />
-              </IconButton>
-            </Tooltip>
-          </Grid>
-        </Grid>
+        <Header />
 
         <Grid container flexDirection={"column"} alignItems={"center"}>
           {/* NAME */}

@@ -1,17 +1,10 @@
-import { Filters, PokemonCard, PokemonLoading } from "../../components";
-import {
-  Grid2 as Grid,
-  IconButton,
-  SelectChangeEvent,
-  Typography,
-} from "@mui/material";
+import { Filters, Header, PokemonCard, PokemonLoading } from "../../components";
+import { Grid2 as Grid, SelectChangeEvent, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 
 import { Pokemon } from "../../common/classes/Pokemon/Pokemon";
 import { PokemonDef } from "../../common/types";
-import { ReactComponent as PokemonIcon } from "../../assets/pokemon.svg";
 import { getPokemonById } from "../../api";
-import { useNavigate } from "react-router-dom";
 import usePokemons from "../../hooks/usePokemons";
 
 const sortOptions = ["A-Z", "Z-A"];
@@ -41,7 +34,6 @@ const Trainer = () => {
     capturedPokemons: capturedPokemonsIds,
     encounteredPokemons: encounteredPokemonsIds,
   } = usePokemons();
-  const navigate = useNavigate();
 
   const [capturedPokemons, setCapturedPokemons] = useState<
     PokemonDef.Pokemon[]
@@ -89,29 +81,7 @@ const Trainer = () => {
     <Grid container paddingX={5} py={2}>
       <Grid container size={12} flexDirection={"column"}>
         <Grid container size={12}>
-          <Grid
-            alignItems={"center"}
-            justifyContent={"flex-start"}
-            container
-            my={2}
-            paddingX={5}
-            columnGap={2}
-            flex={1}
-          >
-            <IconButton onClick={() => navigate("/")}>
-              <PokemonIcon />
-            </IconButton>
-          </Grid>
-
-          <Grid
-            alignItems={"center"}
-            justifyContent={"flex-end"}
-            container
-            my={2}
-            paddingX={5}
-            columnGap={2}
-            flex={1}
-          >
+          <Header>
             <Filters
               label={"Sort By"}
               options={sortOptions}
@@ -119,7 +89,7 @@ const Trainer = () => {
               valueSetter={setSortBy}
               onChange={handleOnChange}
             />
-          </Grid>
+          </Header>
         </Grid>
 
         <Grid container>

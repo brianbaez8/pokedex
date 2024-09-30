@@ -1,58 +1,10 @@
-import { Filters, PokemonCard, PokemonLoading } from "./components";
-import { Grid2 as Grid, IconButton, Pagination, Tooltip } from "@mui/material";
+import { Grid2 as Grid, Pagination } from "@mui/material";
+import { Header, PokemonCard, PokemonLoading } from "./components";
 import React, { useEffect, useState } from "react";
 import { getAllPokemons, getAllTypes, getLocations } from "./api";
 
 import { FilterQuery } from "./common/types/api";
 import { PokemonDef } from "./common/types";
-import { ReactComponent as PokemonIcon } from "./assets/pokemon.svg";
-import { ReactComponent as TrainerIcon } from "./assets/trainer.svg";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
-
-const WEIGHTS = [
-  { value: "100", label: "Up to 100hg" },
-  { value: "200", label: "Up to 200hg" },
-  { value: "300", label: "Up to 300hg" },
-  { value: "400", label: "Up to 400hg" },
-  { value: "500", label: "Up to 500hg" },
-  { value: "600", label: "Up to 600hg" },
-  { value: "700", label: "Up to 700hg" },
-  { value: "800", label: "Up to 800hg" },
-  { value: "900", label: "Up to 900hg" },
-  { value: "1000", label: "Up to 1000hg" },
-  { value: "2000", label: "Up to 2000hg" },
-];
-
-const HEIGHTS = [
-  { value: "100", label: "Up to 100dm" },
-  { value: "200", label: "Up to 200dm" },
-  { value: "300", label: "Up to 300dm" },
-  { value: "400", label: "Up to 400dm" },
-  { value: "500", label: "Up to 500dm" },
-  { value: "600", label: "Up to 600dm" },
-  { value: "700", label: "Up to 700dm" },
-  { value: "800", label: "Up to 800dm" },
-  { value: "900", label: "Up to 900dm" },
-  { value: "1000", label: "Up to 1000dm" },
-  { value: "2000", label: "Up to 2000dm" },
-];
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const healthCheckPing = async (
-  setMessage: React.Dispatch<React.SetStateAction<string>>,
-  setLoading: React.Dispatch<React.SetStateAction<boolean>>
-) => {
-  try {
-    const response = await axios.get("/_health");
-    const message = response.data;
-    setMessage(message);
-  } catch (error) {
-    setMessage(
-      "Unable to check health of server. Please check that the server is started and that the proxy port matches the server port"
-    );
-  }
-};
 
 const fetchPokemons = async (
   query: FilterQuery,
@@ -131,7 +83,6 @@ function App() {
     []
   );
   const [pageCount, setPageCount] = useState(20);
-  const navigate = useNavigate();
 
   const resetFilters = (filter: string) => {
     switch (filter) {
@@ -196,72 +147,25 @@ function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filterType, filterLocation, filterHeight, filterWeight]);
 
-  const locationOptions = locations.map((location) => {
-    return { value: location.id, label: location.name };
-  });
-
   return isLoading ? (
     <PokemonLoading />
   ) : (
     <Grid container paddingX={5} py={2}>
       <Grid size={12}>
-        <Grid container size={12}>
-          <Grid
-            alignItems={"center"}
-            justifyContent={"flex-start"}
-            container
-            my={2}
-            paddingX={5}
-            columnGap={2}
-          >
-            <IconButton onClick={() => navigate("/")}>
-              <PokemonIcon />
-            </IconButton>
-          </Grid>
-          <Grid
-            alignItems={"center"}
-            justifyContent={"flex-end"}
-            container
-            my={2}
-            paddingX={5}
-            columnGap={2}
-            flex={1}
-          >
-            <Tooltip title="Trainer">
-              <IconButton onClick={() => navigate("/trainer")}>
-                <TrainerIcon fontSize={24} />
-              </IconButton>
-            </Tooltip>
-            <Filters
-              label={"types"}
-              options={types}
-              value={filterType}
-              valueSetter={setFilterType}
-              resetFilters={() => resetFilters("types")}
-            />
-            <Filters
-              label={"locations"}
-              options={locationOptions}
-              value={filterLocation}
-              valueSetter={setFilterLocation}
-              resetFilters={() => resetFilters("locations")}
-            />
-            <Filters
-              label={"weight"}
-              options={WEIGHTS}
-              value={filterWeight}
-              valueSetter={setFilterWeight}
-              resetFilters={() => resetFilters("weight")}
-            />
-            <Filters
-              label={"height"}
-              options={HEIGHTS}
-              value={filterHeight}
-              valueSetter={setFilterHeight}
-              resetFilters={() => resetFilters("height")}
-            />
-          </Grid>
-        </Grid>
+        <Header
+          filterHeight={filterHeight}
+          filterLocation={filterLocation}
+          filterType={filterType}
+          filterWeight={filterWeight}
+          setFilterHeight={setFilterHeight}
+          setFilterLocation={setFilterLocation}
+          setFilterType={setFilterType}
+          setFilterWeight={setFilterWeight}
+          types={types}
+          locations={locations}
+          resetFilters={resetFilters}
+          hideFilters={false}
+        />
 
         <Grid container justifyContent={"center"} spacing={5}>
           {pokemon.map((pokemon) => (
