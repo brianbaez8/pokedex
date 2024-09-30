@@ -5,9 +5,6 @@ import {
   Chip,
   Grid2 as Grid,
   IconButton,
-  List,
-  ListItem,
-  ListItemText,
   Tooltip,
   Typography,
 } from "@mui/material";

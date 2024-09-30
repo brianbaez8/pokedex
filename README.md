@@ -1,6 +1,6 @@
 # Developer NOTES
 
-demo link: https://www.loom.com/share/14b3ee24a7174f48afeb8c199f762bd7?sid=a6391d1b-598f-4c97-9c4f-e77369a036ff
+demo link: https://www.loom.com/share/ba02a7627d2f47e88c6670dd41ef2080
 
 ## How to run the project:
 
