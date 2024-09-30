@@ -132,6 +132,7 @@ function App() {
   );
   const [pageCount, setPageCount] = useState(20);
   const navigate = useNavigate();
+  const [currentFilter, setCurrentFilter] = useState<string>("");
 
   const resetFilters = (filter: string) => {
     switch (filter) {
@@ -190,6 +191,8 @@ function App() {
       location: filterLocation,
       weight: filterWeight ? Number(filterWeight) : undefined,
       height: filterHeight ? Number(filterHeight) : undefined,
+      offset: 0,
+      page: 1,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filterType, filterLocation, filterHeight, filterWeight]);

@@ -8,6 +8,8 @@ import {
   capitalize,
 } from "@mui/material";
 
+import { FilterQuery } from "../../common/types/api";
+
 interface FiltersProps {
   value: string;
   valueSetter: React.Dispatch<React.SetStateAction<string>>;
@@ -15,6 +17,10 @@ interface FiltersProps {
   label: string;
   onChange?: (event: SelectChangeEvent) => void;
   resetFilters?: () => void;
+  setCurrentFilter?: React.Dispatch<React.SetStateAction<string>>;
+  currentFilter?: string;
+  query?: FilterQuery;
+  setQuery?: React.Dispatch<React.SetStateAction<FilterQuery>>;
 }
 
 type OptionObject = { value: string; label: string };
@@ -25,7 +31,6 @@ const Filters = ({
   value,
   valueSetter,
   onChange,
-
   resetFilters,
 }: FiltersProps) => {
   const isArrayOfStrings = typeof options[0] === "string";
