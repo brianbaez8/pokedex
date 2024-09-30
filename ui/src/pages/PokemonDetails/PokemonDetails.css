@@ -1,0 +1,22 @@
+.pokemonImageContainer {
+  width: 100%;
+}
+
+.pokemonImage {
+  width: 20%;
+}
+
+.pokemonEvolutionContainer {
+  display: flex;
+  column-gap: 20px;
+}
+
+.pokemonEvolutionImage {
+  width: 100%;
+}
+
+.pokemonEvolution {
+  :hover {
+    cursor: pointer;
+  }
+}
