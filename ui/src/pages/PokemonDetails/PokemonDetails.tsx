@@ -5,6 +5,9 @@ import {
   Chip,
   Grid2 as Grid,
   IconButton,
+  List,
+  ListItem,
+  ListItemText,
   Tooltip,
   Typography,
 } from "@mui/material";
@@ -137,7 +140,7 @@ const PokemonDetails = () => {
             padding={2}
             marginTop={2}
             width="100%"
-            maxWidth="400px"
+            maxWidth="450px"
           >
             <img
               src={pokemon.sprites}
@@ -154,6 +157,21 @@ const PokemonDetails = () => {
               <Chip label={`Weight: ${pokemon.weight}hg`} />
               <Chip label={`Height: ${pokemon.height}dm`} />
             </Grid>
+
+            <Grid container spacing={3} my={2}>
+              <Typography variant="h5">Locations</Typography>
+              <Grid
+                container
+                spacing={0.5}
+                justifyContent={"center"}
+                width={"100%"}
+              >
+                {pokemon.locations?.map((location) => (
+                  <Chip label={capitalize(location.replace("-", " "))} />
+                ))}
+              </Grid>
+            </Grid>
+
             <Typography variant="h6" marginTop={2}>
               Evolutions
             </Typography>

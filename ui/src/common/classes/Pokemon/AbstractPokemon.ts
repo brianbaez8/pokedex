@@ -9,6 +9,7 @@ export abstract class AbstractPokemon {
   order: number;
   sprites?: string;
   evolutionChain?: { name: string; id: number }[];
+  locations?: string[];
 
   constructor(pokemon: PokemonDef.Pokemon) {
     this.id = pokemon.id;
@@ -19,6 +20,7 @@ export abstract class AbstractPokemon {
     this.order = pokemon.order;
     this.sprites = pokemon.sprites;
     this.evolutionChain = pokemon.evolutionChain;
+    this.locations = pokemon.locations;
   }
 
   abstract getName(): string;

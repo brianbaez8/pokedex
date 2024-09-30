@@ -29,3 +29,11 @@ export const getEvolutionChainNames = (
 
   return evolutionNames;
 };
+
+export const parseLocationName = (str: string): string => {
+  const lastHyphenIndex = str.lastIndexOf("-");
+  if (lastHyphenIndex === -1) {
+    return str;
+  }
+  return str.substring(0, lastHyphenIndex);
+};

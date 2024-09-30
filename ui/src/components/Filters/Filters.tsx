@@ -16,7 +16,6 @@ interface FiltersProps {
   options: string[] | { value: string; label: string }[];
   label: string;
   onChange?: (event: SelectChangeEvent) => void;
-  resetFilters?: () => void;
   setCurrentFilter?: React.Dispatch<React.SetStateAction<string>>;
   currentFilter?: string;
   query?: FilterQuery;
@@ -31,15 +30,11 @@ const Filters = ({
   value,
   valueSetter,
   onChange,
-  resetFilters,
 }: FiltersProps) => {
   const isArrayOfStrings = typeof options[0] === "string";
   const handleChange = (event: SelectChangeEvent) => {
     const value = event.target.value;
     valueSetter(value);
-    if (resetFilters) {
-      resetFilters();
-    }
   };
 
   return (

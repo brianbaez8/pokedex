@@ -84,31 +84,11 @@ function App() {
   );
   const [pageCount, setPageCount] = useState(20);
 
-  const resetFilters = (filter: string) => {
-    switch (filter) {
-      case "types":
-        setFilterWeight("");
-        setFilterHeight("");
-        setFilterLocation("");
-        break;
-      case "locations":
-        setFilterWeight("");
-        setFilterHeight("");
-        setFilterType("");
-        break;
-      case "weight":
-        setFilterHeight("");
-        setFilterLocation("");
-        setFilterType("");
-        break;
-      case "height":
-        setFilterWeight("");
-        setFilterLocation("");
-        setFilterType("");
-        break;
-      default:
-        break;
-    }
+  const resetFilters = () => {
+    setFilterType("");
+    setFilterLocation("");
+    setFilterWeight("");
+    setFilterHeight("");
   };
 
   const handlePagination = (
@@ -163,8 +143,8 @@ function App() {
           setFilterWeight={setFilterWeight}
           types={types}
           locations={locations}
-          resetFilters={resetFilters}
           hideFilters={false}
+          resetFilters={resetFilters}
         />
 
         <Grid container justifyContent={"center"} spacing={5}>

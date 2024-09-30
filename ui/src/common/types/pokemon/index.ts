@@ -7,4 +7,5 @@ export interface Pokemon {
   sprites?: string;
   id?: number;
   evolutionChain?: { name: string; id: number }[];
+  locations?: string[];
 }

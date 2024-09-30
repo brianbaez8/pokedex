@@ -12,30 +12,28 @@ import { ReactComponent as TrainerIcon } from "../../assets/trainer.svg";
 import { useNavigate } from "react-router-dom";
 
 const WEIGHTS = [
+  { value: "25", label: "Up to 25hg" },
+  { value: "50", label: "Up to 50hg" },
+  { value: "75", label: "Up to 75hg" },
   { value: "100", label: "Up to 100hg" },
-  { value: "200", label: "Up to 200hg" },
+  { value: "150", label: "Up to 150hg" },
   { value: "300", label: "Up to 300hg" },
-  { value: "400", label: "Up to 400hg" },
-  { value: "500", label: "Up to 500hg" },
   { value: "600", label: "Up to 600hg" },
-  { value: "700", label: "Up to 700hg" },
-  { value: "800", label: "Up to 800hg" },
-  { value: "900", label: "Up to 900hg" },
-  { value: "1000", label: "Up to 1000hg" },
+  { value: "1200", label: "Up to 1200hg" },
+  { value: "1500", label: "Up to 1500hg" },
   { value: "2000", label: "Up to 2000hg" },
 ];
 
 const HEIGHTS = [
+  { value: "25", label: "Up to 25dm" },
+  { value: "50", label: "Up to 50dm" },
+  { value: "75", label: "Up to 75dm" },
   { value: "100", label: "Up to 100dm" },
-  { value: "200", label: "Up to 200dm" },
+  { value: "150", label: "Up to 150dm" },
   { value: "300", label: "Up to 300dm" },
-  { value: "400", label: "Up to 400dm" },
-  { value: "500", label: "Up to 500dm" },
   { value: "600", label: "Up to 600dm" },
-  { value: "700", label: "Up to 700dm" },
-  { value: "800", label: "Up to 800dm" },
-  { value: "900", label: "Up to 900dm" },
-  { value: "1000", label: "Up to 1000dm" },
+  { value: "1200", label: "Up to 1200dm" },
+  { value: "1500", label: "Up to 1500dm" },
   { value: "2000", label: "Up to 2000dm" },
 ];
 interface HeaderProps {
@@ -52,7 +50,7 @@ interface HeaderProps {
   setFilterWeight?: React.Dispatch<React.SetStateAction<string>>;
   filterHeight?: string;
   setFilterHeight?: React.Dispatch<React.SetStateAction<string>>;
-  resetFilters?: (filter: string) => void;
+  resetFilters?: () => void;
   hideFilters?: boolean;
   children?: JSX.Element;
 }
@@ -73,7 +71,7 @@ const Header = ({
   children,
 }: HeaderProps) => {
   const locationOptions = locations?.map((location) => {
-    return { value: location.id, label: location.name };
+    return { value: location.name, label: location.name };
   });
   const theme = useTheme();
   const isXs = useMediaQuery(theme.breakpoints.down("sm"));
@@ -88,7 +86,14 @@ const Header = ({
         paddingX={5}
         columnGap={2}
       >
-        <IconButton onClick={() => navigate("/")}>
+        <IconButton
+          onClick={() => {
+            navigate("/");
+            if (resetFilters) {
+              resetFilters();
+            }
+          }}
+        >
           <PokemonIcon />
         </IconButton>
       </Grid>
@@ -106,35 +111,31 @@ const Header = ({
             <TrainerIcon fontSize={24} />
           </IconButton>
         </Tooltip>
-        {!hideFilters && resetFilters && (
+        {!hideFilters && (
           <>
             <Filters
               label={"types"}
               options={types!}
               value={filterType!}
               valueSetter={setFilterType!}
-              resetFilters={() => resetFilters("types")}
             />
             <Filters
               label={"locations"}
               options={locationOptions!}
               value={filterLocation!}
               valueSetter={setFilterLocation!}
-              resetFilters={() => resetFilters("locations")}
             />
             <Filters
               label={"weight"}
               options={WEIGHTS}
               value={filterWeight!}
               valueSetter={setFilterWeight!}
-              resetFilters={() => resetFilters("weight")}
             />
             <Filters
               label={"height"}
               options={HEIGHTS}
               value={filterHeight!}
               valueSetter={setFilterHeight!}
-              resetFilters={() => resetFilters("height")}
             />
           </>
         )}

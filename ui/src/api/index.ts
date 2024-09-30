@@ -11,6 +11,8 @@ export const getAllPokemons = async (query?: FilterQuery) => {
     weight: query?.weight?.toString() || "",
   });
 
+  console.log("params", params.toString());
+
   return await axios.get(`/pokemons`, {
     params,
   });

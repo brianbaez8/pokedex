@@ -1,8 +1,9 @@
+import { getEvolutionChainNames, parseLocationName } from "../utils";
+
 import { ApiDef } from "../../../ui/src/common/types";
 import { Pokemon } from "../../../ui/src/common/classes/Pokemon/Pokemon";
 import { PokemonDef } from "../../../ui/src/common/types";
 import { Request } from "express";
-import { getEvolutionChainNames } from "../utils";
 
 interface ResultsCount {
   results: { name: string; url: string }[];
@@ -11,130 +12,87 @@ interface ResultsCount {
 export default class PokemonService {
   private static async getPokemonsDetails(
     pokemonArr: { name: string; url: string }[]
-  ): Promise<PokemonDef.Pokemon[]> {
+  ): Promise<(PokemonDef.Pokemon | undefined)[]> {
     return Promise.all(
       pokemonArr.map(async (pokemon) => {
-        const pokemonDetails = await fetch(pokemon.url, {
-          method: "GET",
-        }).then((res) => res.json());
-
-        const firstNonEmptySprite = Object.entries(pokemonDetails.sprites).find(
-          ([key, value]) => value !== null
+        const pokemonId = pokemon.url.split("/").slice(-2)[0];
+        const pokemonDetails = await this.getPokemonById(pokemonId).then(
+          (res) => res
         );
-        const pok: PokemonDef.Pokemon = {
-          id: pokemonDetails.id,
-          name: pokemonDetails.name,
-          types: pokemonDetails.types.map(
-            (type: { type: { name: string } }) => type.type.name
-          ),
-          weight: pokemonDetails.weight,
-          height: pokemonDetails.height,
-          order: pokemonDetails.order,
-          sprites: (firstNonEmptySprite?.[1] as string) || "",
-        };
 
-        const newPokemon = new Pokemon(pok);
+        if (pokemonDetails && pokemonDetails.sprites) {
+          const firstNonEmptySprite = Object.entries(
+            pokemonDetails.sprites
+          ).find(([key, value]) => value !== null);
 
-        return newPokemon;
+          const pok = new Pokemon(pokemonDetails);
+
+          const newPokemon = new Pokemon(pok);
+
+          return newPokemon;
+        }
       })
     );
   }
 
-  private static async handleFilterQuery(
-    filters: ApiDef.FilterQuery,
-    pokemonsArr: ResultsCount
-  ): Promise<ResultsCount> {
-    if (filters.location) {
-      pokemonsArr = await this.getPokemonByLocation(filters.location);
+  private static async handleFilters(
+    pokemons: PokemonDef.Pokemon[],
+    filters: ApiDef.FilterQuery
+  ): Promise<{ count: number; results: PokemonDef.Pokemon[] }> {
+    let filteredPokemons: PokemonDef.Pokemon[] = pokemons;
 
-      if (filters.limit && filters.offset) {
-        // Slice the results based on the limit and offset when type is provided
-        const limitedResults = pokemonsArr.results.slice(
-          Number(filters.offset),
-          Number(filters.limit) + Number(filters.offset)
-        );
-        pokemonsArr = {
-          results: limitedResults,
-          count: pokemonsArr.count,
-        };
-      }
-    } else if (filters.type) {
-      pokemonsArr = await this.getPokemonByType(filters.type);
-
-      if (filters.limit && filters.offset) {
-        // Slice the results based on the limit and offset when type is provided
-        const limitedResults = pokemonsArr.results.slice(
-          Number(filters.offset),
-          Number(filters.limit) + Number(filters.offset)
-        );
-        pokemonsArr = {
-          results: limitedResults,
-          count: pokemonsArr.count,
-        };
-      }
+    if (filters.type) {
+      filteredPokemons = filteredPokemons.filter((pokemon) => {
+        return pokemon.types.includes(filters.type!);
+      });
     }
 
-    return pokemonsArr;
-  }
+    if (filters.location) {
+      filteredPokemons = filteredPokemons.filter((pokemon) => {
+        return pokemon.locations?.includes(filters.location!);
+      });
+    }
 
-  private static async handleWeightAndHeightQuery(
-    filters: ApiDef.FilterQuery,
-    pokemons: ResultsCount
-  ): Promise<{ count: number; results: PokemonDef.Pokemon[] }> {
     if (filters.weight) {
-      pokemons = await fetch(
-        `https://pokeapi.co/api/v2/pokemon?limit=1500&offset=0`,
-        {
-          method: "GET",
-        }
-      ).then((res) => res.json());
-
-      const pokemonDetails = await this.getPokemonsDetails(pokemons.results);
-
-      const filteredPokemons = pokemonDetails.filter(
+      filteredPokemons = filteredPokemons.filter(
         (pokemon) => pokemon.weight <= Number(filters.weight)
       );
-
-      if (filters.limit && filters.offset) {
-        const limitedResults = filteredPokemons.slice(
-          Number(filters.offset),
-          Number(filters.limit) + Number(filters.offset)
-        );
-
-        return { count: filteredPokemons.length, results: limitedResults };
-      }
-
-      return { count: filteredPokemons.length, results: filteredPokemons };
     }
 
     if (filters.height) {
-      pokemons = await fetch(
-        `https://pokeapi.co/api/v2/pokemon?limit=1500&offset=0`,
-        {
-          method: "GET",
-        }
-      ).then((res) => res.json());
-
-      const pokemonDetails = await this.getPokemonsDetails(pokemons.results);
-
-      const filteredPokemons = pokemonDetails.filter(
+      filteredPokemons = filteredPokemons.filter(
         (pokemon) => pokemon.height <= Number(filters.height)
       );
-
-      if (filters.limit && filters.offset) {
-        const limitedResults = filteredPokemons.slice(
-          Number(filters.offset),
-          Number(filters.limit) + Number(filters.offset)
-        );
-
-        return { count: filteredPokemons.length, results: limitedResults };
-      }
-
-      return { count: filteredPokemons.length, results: filteredPokemons };
     }
 
-    return { count: 0, results: [] };
+    const filteredPokemonsPaginated = this.handlePagination(
+      filteredPokemons,
+      filters.limit,
+      filters.offset
+    );
+
+    return {
+      count: filteredPokemonsPaginated.count,
+      results: filteredPokemonsPaginated.results,
+    };
   }
+
+  private static handlePagination = (
+    pokemons: PokemonDef.Pokemon[],
+    limit?: number,
+    offset?: number
+  ): { count: number; results: PokemonDef.Pokemon[] } => {
+    if (limit && offset) {
+      const limitedResults = pokemons.slice(
+        Number(offset),
+        Number(limit) + Number(offset)
+      );
+
+      return { count: pokemons.length, results: limitedResults };
+    }
+
+    return { count: pokemons.length, results: pokemons };
+  };
 
   public static async getPokemons(
     req: Request<{}, {}, {}, ApiDef.FilterQuery>
@@ -146,41 +104,96 @@ export default class PokemonService {
     });
     try {
       let pokemonsArr: {
-        results: { name: string; url: string }[];
+        results: PokemonDef.Pokemon[];
         count: number;
       } = {
         results: [],
         count: 0,
       };
 
-      if (req.query.location || req.query.type) {
-        pokemonsArr = await this.handleFilterQuery(req.query, pokemonsArr);
-      } else if (req.query.weight || req.query.height) {
-        const pokemons = await this.handleWeightAndHeightQuery(
-          req.query,
-          pokemonsArr
-        );
-        return pokemons;
-      } else {
-        pokemonsArr = await fetch(
+      const onlyType =
+        req.query.type &&
+        !req.query.location &&
+        !req.query.weight &&
+        !req.query.height;
+      const noFilters =
+        !req.query.type &&
+        !req.query.location &&
+        !req.query.weight &&
+        !req.query.height;
+
+      if (noFilters) {
+        const pokemons = await fetch(
           `https://pokeapi.co/api/v2/pokemon?${params.toString()}`,
           {
             method: "GET",
           }
         ).then((res) => res.json());
+
+        const pokemonDetails = await this.getPokemonsDetails(pokemons.results);
+
+        const filteredPokemonsPaginated = this.handlePagination(
+          pokemonDetails as PokemonDef.Pokemon[],
+          req.query.limit,
+          req.query.offset
+        );
+
+        return {
+          count: pokemons.count,
+          results: filteredPokemonsPaginated.results,
+        };
       }
 
-      const pokemons = await this.getPokemonsDetails(pokemonsArr.results);
+      // SINCE THE API ALLOWS TO PAGINATE BY TYPE
+      // WE DON'T NEED TO FETCH ALL POKEMONS
+      if (onlyType) {
+        const pokemonsByType = await this.getPokemonByType(
+          req.query.type as string
+        );
+
+        const pokemonDetails = await this.getPokemonsDetails(
+          pokemonsByType.results
+        );
+
+        const filteredPokemonsPaginated = this.handlePagination(
+          pokemonDetails as PokemonDef.Pokemon[],
+          req.query.limit,
+          req.query.offset
+        );
+
+        return {
+          count: filteredPokemonsPaginated.count,
+          results: filteredPokemonsPaginated.results,
+        };
+      }
+
+      // GET ALL POKEMONS
+      const result = await fetch(
+        `https://pokeapi.co/api/v2/pokemon?limit=1500&offset=0`,
+        {
+          method: "GET",
+        }
+      ).then((res) => res.json());
+
+      // GET ALL POKEMONS DETAILS
+      const pokemonDetails = await this.getPokemonsDetails(result.results);
+
+      // HANDLE FILTERS
+      if (pokemonDetails) {
+        pokemonsArr = await this.handleFilters(
+          pokemonDetails as PokemonDef.Pokemon[],
+          req.query
+        );
+      }
 
       return {
         count: pokemonsArr.count,
-        results: pokemons,
+        results: pokemonsArr.results,
       };
     } catch (e) {
       console.error("Error fetching Pokémon:", e);
+      throw new Error("Error fetching Pokémons");
     }
-
-    return { count: 0, results: [] };
   }
 
   public static async getPokemonById(
@@ -225,13 +238,24 @@ export default class PokemonService {
         );
       }
 
+      if (pokemonDetails?.location_area_encounters) {
+        const results = await fetch(pokemonDetails.location_area_encounters, {
+          method: "GET",
+        }).then((res) => res.json());
+
+        pok.locations = results.map(
+          (location: { location_area: { name: string } }) =>
+            parseLocationName(location.location_area.name)
+        );
+      }
+
       const pokemon = new Pokemon(pok);
 
       return pokemon;
     } catch (e) {
-      console.error("Error fetching Pokémon:", e);
+      console.error("Error fetching Pokémon2:", e);
+      throw new Error("Error fetching Pokémon");
     }
-    return null;
   }
 
   public static async getTypes(): Promise<string[]> {
@@ -244,6 +268,7 @@ export default class PokemonService {
       return types.results.map((type: { name: string }) => type.name);
     } catch (e) {
       console.error("Error fetching types:", e);
+      throw new Error("Error fetching types");
     }
     return [];
   }
@@ -267,19 +292,22 @@ export default class PokemonService {
         count,
       };
     } catch (error) {
-      console.error("Error fetching Pokémon:", error);
+      console.error("Error fetching Pokémon3:", error);
+      throw new Error("Error fetching Pokémon by type");
     }
-    return { results: [], count: 0 };
   }
 
   public static async getLocations(): Promise<{
     name: string;
     id: number;
-  } | null> {
+  }> {
     try {
-      const locations = await fetch("https://pokeapi.co/api/v2/location", {
-        method: "GET",
-      }).then((res) => {
+      const locations = await fetch(
+        "https://pokeapi.co/api/v2/location?limit=1050",
+        {
+          method: "GET",
+        }
+      ).then((res) => {
         return res.json();
       });
 
@@ -291,31 +319,7 @@ export default class PokemonService {
       );
     } catch (e) {
       console.error("Error fetching locations:", e);
+      throw new Error("Error fetching locations");
     }
-    return null;
-  }
-
-  private static async getPokemonByLocation(
-    location: string
-  ): Promise<{ results: { name: string; url: string }[]; count: number }> {
-    try {
-      const locationAreaDetails = await fetch(
-        `https://pokeapi.co/api/v2/location-area/${location}`
-      ).then((response) => response.json());
-
-      const results = locationAreaDetails.pokemon_encounters.map(
-        (pokemon: { pokemon: { name: string; url: string } }) => pokemon.pokemon
-      );
-
-      const count = locationAreaDetails.pokemon_encounters.length;
-
-      return {
-        results: results,
-        count,
-      };
-    } catch (error) {
-      console.error("Error fetching Pokémon:", error);
-    }
-    return { results: [], count: 0 };
   }
 }
